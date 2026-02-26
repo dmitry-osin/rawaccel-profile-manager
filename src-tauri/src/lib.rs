@@ -1,7 +1,8 @@
 mod config;
 mod error;
-mod rawaccel;
+mod notifications;
 mod profile;
+mod rawaccel;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]

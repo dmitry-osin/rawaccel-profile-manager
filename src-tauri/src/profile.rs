@@ -5,9 +5,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::config;
 use crate::error::{Error, Result};
 use crate::rawaccel;
+use crate::{config, notifications};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct ProfileMeta {
@@ -283,6 +283,8 @@ pub fn apply_profile_sync(profileId: Uuid) -> Result<()> {
 
     rawaccel::apply_profile_settings(&get_profile_settings_path(profileId)?)?;
     set_active_profile(Some(profileId))?;
+    notifications::notify_profile_switch(&profile.name);
+    notifications::emit_profile_switched(profileId, &profile.name);
 
     Ok(())
 }
