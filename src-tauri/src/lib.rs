@@ -3,6 +3,7 @@ mod error;
 mod notifications;
 mod profile;
 mod rawaccel;
+mod tray;
 mod autostart;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
