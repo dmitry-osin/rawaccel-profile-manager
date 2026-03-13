@@ -258,3 +258,29 @@ pub fn import_settings(path: String) -> Result<AppConfig> {
     save_config(config.clone())?;
     Ok(config)
 }
+
+#[tauri::command]
+pub fn restart_as_admin() -> Result<()> {
+    #[cfg(target_os = "windows")]
+    {
+        let exe = std::env::current_exe()?;
+        let script = format!(
+            "Start-Process -FilePath '{}' -Verb runAs",
+            exe.to_string_lossy()
+        );
+
+        Command::new("powershell")
+            .arg("-Command")
+            .arg(&script)
+            .spawn()?;
+
+        std::process::exit(0);
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        Err(Error::Io(
+            "elevation restart is only supported on Windows".to_string(),
+        ))
+    }
+}

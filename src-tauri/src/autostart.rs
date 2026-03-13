@@ -12,6 +12,8 @@ fn get_current_exe_path() -> Result<PathBuf> {
     std::env::current_exe().map_err(Error::from)
 }
 
+// Tauri autostart commands
+
 #[tauri::command]
 pub fn set_autostart(enabled: bool) -> Result<()> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);

@@ -172,6 +172,8 @@ fn read_settings_from_path(path: &Path) -> Result<Value> {
     serde_json::from_str(&content).map_err(Error::from)
 }
 
+// Tauri RawAccel commands
+
 #[tauri::command]
 pub fn cancel_rawaccel_operation() -> Result<()> {
     if is_rawaccel_running() {

@@ -141,6 +141,8 @@ pub fn refresh_profiles_menu<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
     Ok(())
 }
 
+// Tauri tray commands
+
 #[tauri::command]
 pub fn get_autostart() -> Result<bool> {
     autostart::is_autostart_enabled()
