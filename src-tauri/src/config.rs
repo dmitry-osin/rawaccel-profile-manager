@@ -1,5 +1,6 @@
 use crate::error::Error;
 use crate::error::Result;
+use crate::APPLICATION_NAME;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -120,7 +121,7 @@ pub fn get_app_data_dir() -> Result<PathBuf> {
     std::env::var_os("APPDATA")
         .map(PathBuf::from)
         .or_else(dirs::data_dir)
-        .map(|dir| dir.join("rawaccelman"))
+        .map(|dir| dir.join(APPLICATION_NAME))
         .ok_or(Error::ConfigDirNotFound)
 }
 
