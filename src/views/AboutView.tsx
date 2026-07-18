@@ -2,7 +2,7 @@ import {ExternalLink, User} from "lucide-react";
 import {openUrl} from "@tauri-apps/plugin-opener";
 import {Button} from "../components/ui/Button";
 
-const REPO_URL = "https://github.com/dmitry-osin/rawaccel-profiles-rs";
+const REPO_URL = "https://github.com/dmitry-osin/rawaccel-profile-manager";
 
 const technologies = [
     "Tauri",
