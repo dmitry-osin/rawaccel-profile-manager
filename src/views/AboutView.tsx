@@ -1,6 +1,7 @@
 import {ExternalLink, User} from "lucide-react";
 import {openUrl} from "@tauri-apps/plugin-opener";
 import {Button} from "../components/ui/Button";
+import {useAppVersion} from "../hooks/useAppVersion";
 
 const REPO_URL = "https://github.com/dmitry-osin/rawaccel-profile-manager";
 
@@ -12,6 +13,8 @@ const technologies = [
 ];
 
 export function AboutView() {
+    const version = useAppVersion();
+
     return (
         <div className="h-full flex flex-col items-center justify-center">
             <div
@@ -32,14 +35,14 @@ export function AboutView() {
                 </h1>
                 <p className="text-sm
                 text-[var(--md-sys-color-on-surface-variant)]">
-                    Version 1.0.0
+                    {`Version ${version}`}
                 </p>
 
                 <div className="mt-6 flex flex-col gap-2 text-sm
                 text-[var(--md-sys-color-on-surface-variant)]">
                     <div className="flex items-center justify-center gap-2">
                         <User className="w-4 h-4"/>
-                        <span>Created by Your Name</span>
+                        <span>Created by Dmitry Osin</span>
                     </div>
                 </div>
 

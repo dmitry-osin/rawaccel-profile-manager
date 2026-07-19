@@ -1,8 +1,10 @@
 import {getCurrentWebviewWindow} from "@tauri-apps/api/webviewWindow";
 import {useStore} from "../../store/useStore";
+import {useAppVersion} from "../../hooks/useAppVersion";
 
 export function StatusBar() {
     const appWindow = getCurrentWebviewWindow();
+    const version = useAppVersion();
     const profiles = useStore((state) => state.profiles);
     const activeProfileId = useStore((state) => state.activeProfileId);
     const autoSwitchEnabled = useStore(
@@ -21,7 +23,7 @@ export function StatusBar() {
             text-[var(--md-sys-color-on-surface-variant)]
             border-t border-[var(--md-sys-color-outline-variant)]"
         >
-            <span>v1.0.0</span>
+            <span>{`v${version}`}</span>
             <span>
         Active: <span className="text-[var(--md-sys-color-on-surface)]">{activeProfileName}</span>
       </span>

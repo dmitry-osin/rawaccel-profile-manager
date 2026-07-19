@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "rawaccel-profile-manager",
+  "productName": "RawAccel Profile Manager",
   "version": "0.1.0",
   "identifier": "pro.osin.tools.rawaccel.profile.manager.app",
   "build": {
