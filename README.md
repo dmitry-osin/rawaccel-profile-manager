@@ -5,6 +5,10 @@
 RawAccel Profile Manager is application that allows to manage RawAccel profiles and auto-switch profiles depends on
 running application.
 
+## Demo
+
+![demo.gif](demo.gif)
+
 ## Important Things
 
 - Application settings directory: `%APPDATA%\RawAccelProfileManager`.
