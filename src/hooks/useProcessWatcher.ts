@@ -7,6 +7,7 @@ export function useProcessWatcher() {
     const mappings = useStore((state) => state.mappings);
     const setMappings = useStore((state) => state.setMappings);
     const removeMappingFromStore = useStore((state) => state.removeMapping);
+    const updateConfigInStore = useStore((state) => state.updateSettings);
 
     const [runningProcesses, setRunningProcesses] = useState<string[]>([]);
     const [loading, setLoading] = useState(mappings.length === 0);
@@ -55,7 +56,9 @@ export function useProcessWatcher() {
         if (!config) return;
         api
             .setConfig({...config, auto_switch_enabled: enabled})
-            .then(() => load(false))
+            .then(() => {
+                updateConfigInStore({auto_switch_enabled: enabled});
+            })
             .catch((err) => console.error("Failed to toggle auto-switch:", err));
     };
 
@@ -63,7 +66,9 @@ export function useProcessWatcher() {
         if (!config) return;
         api
             .setConfig({...config, process_check_delay_ms: delayMs})
-            .then(() => load(false))
+            .then(() => {
+                updateConfigInStore({process_check_delay_ms: delayMs});
+            })
             .catch((err) => console.error("Failed to set delay:", err));
     };
 

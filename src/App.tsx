@@ -33,6 +33,7 @@ function App() {
     const {loading: profilesLoading} = useProfiles();
     const {loading: mappingsLoading} = useProcessWatcher();
     const setActiveProfileId = useStore((state) => state.setActiveProfileId);
+    const updateSettings = useStore((state) => state.updateSettings);
 
     useTheme();
 
@@ -52,6 +53,20 @@ function App() {
             unlisten?.();
         };
     }, [setActiveProfileId]);
+
+    useEffect(() => {
+        let unlisten: (() => void) | undefined;
+
+        listen<boolean>("auto_switch:changed", (event) => {
+            updateSettings({ auto_switch_enabled: event.payload });
+        }).then((cleanup) => {
+            unlisten = cleanup;
+        });
+
+        return () => {
+            unlisten?.();
+        };
+    }, [updateSettings]);
 
     useEffect(() => {
         if (!config) return;

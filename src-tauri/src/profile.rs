@@ -70,6 +70,8 @@ pub fn get_profiles() -> Result<Vec<Profile>> {
         }
     }
 
+    profiles.sort_by_key(|x| !x.is_default);
+
     Ok(profiles)
 }
 

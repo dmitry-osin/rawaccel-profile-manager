@@ -1,6 +1,6 @@
 use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
 use tauri::tray::{TrayIconBuilder, TrayIconEvent};
-use tauri::{AppHandle, Manager, Runtime};
+use tauri::{AppHandle, Emitter, Manager, Runtime};
 use uuid::Uuid;
 
 use crate::autostart;
@@ -122,12 +122,16 @@ fn show_main_window<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
 fn toggle_auto_switch<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
     let mut cfg = config::create_or_load_config()?;
     cfg.auto_switch_enabled = !cfg.auto_switch_enabled;
+    let new_value = cfg.auto_switch_enabled;
     config::save_config(cfg)?;
 
     if let Some(tray) = app.tray_by_id(TRAY_ID) {
         let menu = build_menu(app)?;
         tray.set_menu(Some(menu))?;
     }
+
+    app.emit("auto_switch:changed", new_value)
+        .unwrap_or_else(|e| eprintln!("tray: failed to emit auto_switch:changed: {e}"));
 
     Ok(())
 }
