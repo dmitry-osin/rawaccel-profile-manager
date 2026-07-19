@@ -23,9 +23,9 @@ export function AboutView() {
                 bg-[var(--md-sys-color-surface)] p-8 shadow-lg text-center">
                 <div className="flex justify-center">
                     <img
-                        src="/tauri.svg"
+                        src="/icon.png"
                         alt="Application logo"
-                        className="h-20 w-20"
+                        className="h-80 w-80"
                     />
                 </div>
 
