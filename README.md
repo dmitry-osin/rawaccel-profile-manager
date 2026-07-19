@@ -1,37 +1,35 @@
 # RawAccel Profile Manager
 
-RawAccel Profile Manager is an application for centralized management of RawAccel profiles on Windows, integrated into the standard mouse tuning workflow.
+[![Release](https://github.com/dmitry-osin/rawaccel-profile-manager/actions/workflows/release.yml/badge.svg)](https://github.com/dmitry-osin/rawaccel-profile-manager/actions/workflows/release.yml)
 
-## System Requirements
+RawAccel Profile Manager is application that allows to manage RawAccel profiles and auto-switch profiles depends on
+running application.
+
+## Important Things
 
 - Application settings directory: `%APPDATA%\RawAccelProfileManager`.
-- RawAccel must be installed before using the application.
-- On first launch, the initial setup Wizard guides the user through the required configuration steps.
+- RawAccel must be installed before using the application also RawAccel Profile Manager will guide you through the all
+  process from scratch.
 
 ## How It Works
 
 1. To create or edit a profile, the application launches a child RawAccel window.
-2. The corresponding profile (or a new profile template) is passed to RawAccel.
+2. RawAccel Profile Manager passes concrete profile (or a new profile template) to RawAccel directory.
 3. The user makes changes in the RawAccel UI and closes the window.
-4. After the window is closed, the changes are automatically read and saved in RawAccel Profile Manager.
+4. After RawAccel window is closed, RawAccel Profile Manager saved new version of config to own config storage.
 
-This provides editing through the native RawAccel interface while keeping profile storage and management centralized in one place.
+This approach avoid any issues and inconsistent state of RawAccel config. Also it allows to bump version of RawAccel
+original version and do not meet any issues with new config format.
 
 ## Automatic Profile Switching
 
 - You can bind a specific profile to a specific application (for example, `cs2.exe -> CS2 Fast`).
-- RawAccel Profile Manager tracks the start and exit of target processes.
-- When a bound application starts, the corresponding profile is applied automatically.
+- RawAccel Profile Manager watches start and exit of target processes.
+- When a bound application starts corresponding profile is applied automatically.
 - When the application exits, the default profile is applied automatically.
 
-This mechanism removes the need for manual switching and ensures the correct settings are applied for each usage scenario.
-
-## User Benefits
-
-- Centralized storage of RawAccel profiles.
-- Simplified profile creation, editing, and reuse.
-- Near-seamless integration with RawAccel for precise tuning.
-- Automatic profile application based on the active application.
+This mechanism removes the need for manual switching and ensures the correct settings are applied for each usage
+scenario.
 
 ## Author
 

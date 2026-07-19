@@ -163,3 +163,42 @@ jobs:
           releaseDraft: false
           prerelease: false
           includeUpdaterJson: false
+
+      - name: Pack portable app into zip
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $assetDir = "release-assets"
+          $releaseDir = "src-tauri/target/release"
+          $appExe = Join-Path $releaseDir "rawaccel-profile-manager.exe"
+
+          if (-not (Test-Path -LiteralPath $appExe)) {
+            throw "Portable executable not found: $appExe"
+          }
+
+          New-Item -ItemType Directory -Path $assetDir -Force | Out-Null
+          $portableDir = Join-Path $assetDir "rawaccel-profile-manager-windows-x64"
+          New-Item -ItemType Directory -Path $portableDir -Force | Out-Null
+
+          Copy-Item -LiteralPath $appExe -Destination (Join-Path $portableDir "rawaccel-profile-manager.exe") -Force
+
+          if (Test-Path -LiteralPath "README.md") {
+            Copy-Item -LiteralPath "README.md" -Destination (Join-Path $portableDir "README.md") -Force
+          }
+          if (Test-Path -LiteralPath "LICENSE") {
+            Copy-Item -LiteralPath "LICENSE" -Destination (Join-Path $portableDir "LICENSE") -Force
+          }
+
+          $zipPath = "rawaccel-profile-manager-$tag-windows-x64-portable.zip"
+          if (Test-Path -LiteralPath $zipPath) {
+            Remove-Item -LiteralPath $zipPath -Force
+          }
+
+          Compress-Archive -Path "$portableDir/*" -DestinationPath $zipPath -CompressionLevel Optimal
+          "ZIP_PATH=$zipPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Upload zip to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: ${{ env.ZIP_PATH }}
