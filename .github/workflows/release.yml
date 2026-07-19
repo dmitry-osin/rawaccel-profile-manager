@@ -1,0 +1,165 @@
+name: Release
+
+on:
+  push:
+#    branches:
+#      - main
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10"
+  RUST_TARGET: "x86_64-pc-windows-msvc"
+
+jobs:
+  check-build:
+    name: Check Build (Windows)
+    runs-on: windows-latest
+    if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Setup Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ env.RUST_TARGET }}
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Remove local Cargo linker override (if present)
+        shell: pwsh
+        run: Remove-Item -LiteralPath ".cargo/config.toml" -Force -ErrorAction SilentlyContinue
+
+      - name: Check Rust compilation
+        run: cargo check --manifest-path src-tauri/Cargo.toml --target ${{ env.RUST_TARGET }}
+
+      - name: Build frontend
+        run: pnpm build
+
+  build-windows:
+    name: Build and Release (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Setup Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ env.RUST_TARGET }}
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Remove local Cargo linker override (if present)
+        shell: pwsh
+        run: Remove-Item -LiteralPath ".cargo/config.toml" -Force -ErrorAction SilentlyContinue
+
+      - name: Sync app versions from tag
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          if ($tag -notmatch '^v\d+\.\d+\.\d+$') {
+            throw "Tag '$tag' does not match vMAJOR.MINOR.PATCH"
+          }
+          $version = $tag.Substring(1)
+
+          # tauri.conf.json
+          $tauriConfPath = "src-tauri/tauri.conf.json"
+          $tauriConf = Get-Content -LiteralPath $tauriConfPath -Raw | ConvertFrom-Json
+          $tauriConf.version = $version
+          $tauriConf | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $tauriConfPath -Encoding UTF8
+
+          # package.json
+          $packageJsonPath = "package.json"
+          $packageJson = Get-Content -LiteralPath $packageJsonPath -Raw | ConvertFrom-Json
+          $packageJson.version = $version
+          $packageJson | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $packageJsonPath -Encoding UTF8
+
+          # Cargo.toml ([package] version only)
+          $cargoTomlPath = "src-tauri/Cargo.toml"
+          $cargoLines = Get-Content -LiteralPath $cargoTomlPath
+          $inPackage = $false
+          for ($i = 0; $i -lt $cargoLines.Count; $i++) {
+            if ($cargoLines[$i] -match '^\[package\]') {
+              $inPackage = $true
+              continue
+            }
+            if ($inPackage -and $cargoLines[$i] -match '^\[') {
+              break
+            }
+            if ($inPackage -and $cargoLines[$i] -match '^version\s*=\s*"[^"]+"') {
+              $cargoLines[$i] = "version = `"$version`""
+              break
+            }
+          }
+          Set-Content -LiteralPath $cargoTomlPath -Value $cargoLines -Encoding UTF8
+
+      - name: Build Tauri app and publish release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tauriScript: pnpm exec tauri
+          tagName: ${{ github.ref_name }}
+          releaseName: RawAccel Profile Manager ${{ github.ref_name }}
+          releaseBody: |
+            ## RawAccel Profile Manager ${{ github.ref_name }}
+
+            Windows release build of RawAccel Profile Manager.
+
+            ### Requirements
+            - Windows 10 / 11 (x64)
+            - RawAccel installed separately
+            - Administrator privileges may be required by RawAccel tools
+          releaseDraft: false
+          prerelease: false
+          includeUpdaterJson: false
