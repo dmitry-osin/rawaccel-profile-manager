@@ -142,7 +142,6 @@ export function ProfilesView({setIsRawAccelOpen}: ProfilesViewProps) {
         if (!renameTarget) return;
         try {
             await renameProfile(renameTarget.id, name);
-            await load();
         } catch (err) {
             console.error("Failed to rename profile:", err);
             showError(formatError(err), "Failed to rename profile");

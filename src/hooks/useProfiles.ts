@@ -59,11 +59,10 @@ export function useProfiles() {
     };
 
     const renameProfile = async (id: string, name: string) => {
-        await api.renameProfile(id, name);
-        const profile = await api.getActiveProfile();
-        if (profile) {
-            updateProfile(profile);
-        }
+        const trimmed = name.trim();
+        await api.renameProfile(id, trimmed);
+        const list = await api.getProfiles();
+        setProfiles(list);
     };
 
     const duplicateProfile = async (id: string) => {
