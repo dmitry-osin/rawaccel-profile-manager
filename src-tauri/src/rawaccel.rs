@@ -30,8 +30,15 @@ pub fn get_rawaccel_dir() -> Result<PathBuf> {
 
 pub fn backup_settings() -> Result<()> {
     let source = get_settings_path()?;
+    let backup = get_backup_path()?;
+
+    // Remove old backup file
+    if backup.is_file() {
+        fs::remove_file(&source)?;
+    }
+
     if source.is_file() {
-        fs::copy(&source, get_backup_path()?)?;
+        fs::copy(&source, backup)?;
     }
     Ok(())
 }
